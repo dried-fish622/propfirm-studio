@@ -341,17 +341,35 @@ function renderPersons() {
     });
 }
 
-    function getAccountItemHtml(acc, isLive) {
-        return `
-            <div class="account-item ${isLive ? 'live-group' : ''}">
-                <div class="flex-between"><strong>${acc.platform}</strong> ${acc.alias ? `(${acc.alias})` : ''} ${isLive ? '🔥Live' : '📘资助账户'}</div>
-                <div>💰 成本: $${acc.cost.toFixed(2)} | 出金次数: ${acc.withdrawals.length}</div>
-                <div class="withdraw-history">📅 出金: ${acc.withdrawals.length===0?'无':acc.withdrawals.map(w=>`<span class="withdraw-item">$${w.amount} (${w.date})</span>`).join('')}</div>
-                <div><button class="btn-small add-withdraw-funded" data-id="${acc.id}">➕ 记录出金</button>
-                <button class="btn-small delete-funded" data-id="${acc.id}">🗑️ 删除</button></div>
-            </div>
-        `;
+function getAccountItemHtml(acc, isLive) {
+    // 生成出金记录列表（带删除按钮）
+    let withdrawalsHtml = '';
+    if (acc.withdrawals.length === 0) {
+        withdrawalsHtml = '<div style="padding: 4px 0;">暂无出金记录</div>';
+    } else {
+        withdrawalsHtml = '<div style="margin-top: 8px;">📅 出金记录：</div>';
+        acc.withdrawals.forEach((w, idx) => {
+            withdrawalsHtml += `
+                <div class="withdraw-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span>💰 $${w.amount} (${w.date})</span>
+                    <button class="delete-withdraw-btn" data-acc-id="${acc.id}" data-idx="${idx}" style="background: #fee2e2; border: none; border-radius: 20px; padding: 2px 10px; color: #b91c1c; cursor: pointer; font-size: 0.7rem;">🗑️ 删除</button>
+                </div>
+            `;
+        });
     }
+    
+    return `
+        <div class="account-item ${isLive ? 'live-group' : ''}">
+            <div class="flex-between"><strong>${acc.platform}</strong> ${acc.alias ? `(${acc.alias})` : ''} ${isLive ? '🔥Live' : '📘资助账户'}</div>
+            <div>💰 成本: $${acc.cost.toFixed(2)} | 出金次数: ${acc.withdrawals.length}</div>
+            ${withdrawalsHtml}
+            <div style="margin-top: 10px;">
+                <button class="btn-small add-withdraw-funded" data-id="${acc.id}">➕ 记录出金</button>
+                <button class="btn-small delete-funded" data-id="${acc.id}">🗑️ 删除账户</button>
+            </div>
+        </div>
+    `;
+}
 
     function bindPersonEvents() {
         document.querySelectorAll('.delete-person').forEach(btn => {
