@@ -2,10 +2,9 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PropFirm工作室 </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>PropFirm工作室系统 | 云端同步版</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e5631'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%23ffffff'%3E📈%3C/text%3E%3C/svg%3E">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <style>
@@ -14,14 +13,13 @@
         .container { max-width: 1600px; margin: 0 auto; }
         .header { background: linear-gradient(135deg, #0c4a6e, #1e3a5f); color: white; border-radius: 28px; padding: 20px 28px; margin-bottom: 28px; }
         .toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; background: white; padding: 12px 20px; border-radius: 60px; align-items: center; }
-        button { background: #eef2ff; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-size: 0.85rem; }
+        button { background: #eef2ff; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
         button.primary { background: #1e5631; color: white; }
         button.danger { background: #fee2e2; color: #b91c1c; }
-        button.warning { background: #fef9c3; color: #854d0e; }
         button.cloud { background: #3b82f6; color: white; }
-        .btn-small { padding: 4px 12px; font-size: 0.7rem; background: white; border: 1px solid #ccc; margin-right: 6px; }
-        .persons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 24px; margin-bottom: 40px; }
-        .person-card { background: white; border-radius: 28px; overflow: hidden; }
+        .btn-small { padding: 4px 12px; font-size: 0.7rem; background: white; border: 1px solid #ccc; margin-right: 6px; border-radius: 20px; cursor: pointer; }
+        .persons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        .person-card { background: white; border-radius: 28px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         .person-header { background: #f8fafc; padding: 16px 20px; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
         .person-name { font-size: 1.3rem; font-weight: 700; background: #e6f7ec; padding: 4px 14px; border-radius: 40px; }
         .account-section { padding: 16px; }
@@ -29,8 +27,8 @@
         .account-item { background: #f9f9fb; border-radius: 20px; margin-bottom: 12px; padding: 12px; border-left: 4px solid #94a3b8; }
         .account-item.live-group { border-left-color: #f59e0b; background: #fffbeb; }
         .flex-between { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
-        .withdraw-history { font-size: 0.75rem; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #ddd; }
-        .withdraw-item { background: white; display: inline-block; margin: 4px 6px 4px 0; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; }
+        .withdraw-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; background: white; border-radius: 16px; padding: 4px 8px; }
+        .delete-withdraw-btn { background: #fee2e2; border: none; border-radius: 20px; padding: 2px 12px; color: #b91c1c; cursor: pointer; font-size: 0.7rem; }
         .summary-section, .exam-summary { background: white; border-radius: 28px; padding: 20px; margin-bottom: 28px; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eef2f6; }
@@ -47,19 +45,21 @@
         .del-platform { cursor: pointer; color: #b91c1c; font-weight: bold; margin-left: 6px; }
         .sync-status { background: #e6f7ec; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; }
         hr { margin: 12px 0; }
+        .manual-cost-input { width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>☁️ PropFirm 工作室</h1>
+        <h1>📈 PropFirm 工作室管理系统 | 云端同步版</h1>
+        <p>多设备数据共享 · 支持删除单条出金记录 · 手动成本覆盖</p>
     </div>
 
     <div class="toolbar">
         <button id="addPlatformBtn" class="primary">🏷️ 新增平台(大写)</button>
         <button id="addPersonBtn" class="primary">👥 新增交易员</button>
         <button id="addFundedAccountBtn" class="primary">💰 添加资助账户</button>
-        <button id="addExamAccountBtn" class="warning">📚 添加考试账户</button>
+        <button id="addExamAccountBtn" class="primary">📚 添加考试账户</button>
         <button id="recordWithdrawBtn" class="primary">💵 记录出金</button>
         <button id="syncToCloudBtn" class="cloud">☁️ 同步到云端</button>
         <button id="loadFromCloudBtn" class="cloud">📥 从云端加载</button>
@@ -94,13 +94,13 @@
 <div id="modalPlatform" class="modal"><div class="modal-content"><h3>🏷️ 新增平台</h3><div class="form-group"><label>平台名称 (英文大写)</label><input id="platformName" placeholder="例: FTMO"></div><div style="display:flex; gap:12px;"><button id="closePlatform">取消</button><button id="confirmPlatform" class="primary">添加</button></div></div></div>
 <div id="modalPerson" class="modal"><div class="modal-content"><h3>➕ 新增交易员</h3><div class="form-group"><label>姓名</label><input id="personName"></div><div style="display:flex; gap:12px;"><button id="closePerson">取消</button><button id="confirmPerson" class="primary">添加</button></div></div></div>
 <div id="modalFunded" class="modal"><div class="modal-content"><h3>💰 添加资助账户</h3><div class="form-group"><label>所属交易员</label><select id="fundedPersonSelect"></select></div><div class="form-group"><label>平台</label><select id="fundedPlatformSelect"></select></div><div class="form-group"><label>账户别名</label><input id="fundedAlias"></div><div class="form-group"><label>成本(USD)</label><input id="fundedCost" type="number" step="any" value="0"></div><div class="form-group"><label><input type="checkbox" id="fundedLive"> Live账户</label></div><div style="display:flex; gap:12px;"><button id="closeFunded">取消</button><button id="confirmFunded" class="primary">创建</button></div></div></div>
-<div id="modalExam" class="modal"><div class="modal-content"><h3>📚 添加考试账户</h3><div class="form-group"><label>所属交易员</label><select id="examPersonSelect"></select></div><div class="form-group"><label>平台</label><select id="examPlatformSelect"></select></div><div class="form-group"><label>账户标识</label><input id="examAlias"></div><div style="display:flex; gap:12px;"><button id="closeExam">取消</button><button id="confirmExam" class="warning">添加</button></div></div></div>
+<div id="modalExam" class="modal"><div class="modal-content"><h3>📚 添加考试账户</h3><div class="form-group"><label>所属交易员</label><select id="examPersonSelect"></select></div><div class="form-group"><label>平台</label><select id="examPlatformSelect"></select></div><div class="form-group"><label>账户标识</label><input id="examAlias"></div><div style="display:flex; gap:12px;"><button id="closeExam">取消</button><button id="confirmExam" class="primary">添加</button></div></div></div>
 <div id="modalWithdraw" class="modal"><div class="modal-content"><h3>💵 记录出金</h3><div class="form-group"><label>选择交易员</label><select id="withdrawPersonSelect"></select></div><div class="form-group"><label>选择资助账户</label><select id="withdrawAccountSelect"></select></div><div class="form-group"><label>出金金额 (USD)</label><input id="withdrawAmount" type="number" step="any"></div><div class="form-group"><label>出金日期</label><input id="withdrawDate" type="date"></div><div style="display:flex; gap:12px;"><button id="closeWithdraw">取消</button><button id="confirmWithdraw" class="primary">记录</button></div></div></div>
 
 <div id="toastMsg" class="toast"></div>
 
 <script>
-    // ==================== Firebase 配置（您的真实配置）====================
+    // ==================== Firebase 配置 ====================
     const firebaseConfig = {
         apiKey: "AIzaSyBR0LfYYYalZT4IYtNP9IwisTbjTZz_dxg",
         authDomain: "propfirm-studio.firebaseapp.com",
@@ -110,7 +110,6 @@
         appId: "1:719173851897:web:ed62bb1eee5b00fc78a028"
     };
 
-    // 初始化 Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -122,7 +121,6 @@
     let nextPersonId = 1, nextFundedId = 1, nextExamId = 1;
     const STORAGE_KEY = "propfirm_local_data";
 
-    // ==================== 本地存储 ====================
     function saveToLocal() {
         const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -179,11 +177,7 @@
     // ==================== 云端同步 ====================
     async function syncToCloud() {
         showToast("📡 正在同步到云端...");
-        const data = { 
-            platforms, persons, fundedAccounts, examAccounts, 
-            nextPersonId, nextFundedId, nextExamId, 
-            timestamp: new Date().toISOString() 
-        };
+        const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId, timestamp: new Date().toISOString() };
         try {
             await db.collection("propfirmData").doc("mainData").set(data);
             showToast("✅ 云端同步成功！");
@@ -251,138 +245,194 @@
         });
     }
 
-function renderPersons() {
-    const container = document.getElementById("personsContainer");
-    container.innerHTML = "";
-    for(let p of persons) {
-        let personFunded = fundedAccounts.filter(f => f.personId === p.id);
-        const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
-        let groupsHtml = "";
-        for(let plat of platformSet) {
-            const accountsOfPlat = personFunded.filter(f => f.platform === plat);
-            const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
-            const liveAccounts = accountsOfPlat.filter(f => f.isLive);
-            if(normalAccounts.length > 0) {
-                groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
-                normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
-            }
-            if(liveAccounts.length > 0) {
-                groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
-                liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
-            }
-        }
-        if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
-        
-        const personExam = examAccounts.filter(e => e.personId === p.id);
-        let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
-        if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
-        else {
-            personExam.forEach(ex => {
-                examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
+    function getAccountItemHtml(acc, isLive) {
+        let withdrawalsHtml = '';
+        if (acc.withdrawals.length === 0) {
+            withdrawalsHtml = '<div style="padding: 4px 0; color: #666;">暂无出金记录</div>';
+        } else {
+            withdrawalsHtml = '<div style="margin-top: 8px; margin-bottom: 4px;">📅 出金记录：</div>';
+            acc.withdrawals.forEach((w, idx) => {
+                withdrawalsHtml += `
+                    <div class="withdraw-item-row">
+                        <span>💰 $${w.amount} (${w.date})</span>
+                        <button class="delete-withdraw-btn" data-acc-id="${acc.id}" data-idx="${idx}">删除</button>
+                    </div>
+                `;
             });
         }
         
-        // 自动计算的总成本（基于现有资助账户）
-        const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
-        const totalWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
-        const totalWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
-        
-        // 获取手动输入的总成本（存储在 localStorage 中）
-        const manualCostKey = `manual_cost_${p.id}`;
-        let manualCost = localStorage.getItem(manualCostKey);
-        if (manualCost === null) manualCost = autoTotalCost;
-        else manualCost = parseFloat(manualCost);
-        
-        const card = document.createElement("div");
-        card.className = "person-card";
-        card.innerHTML = `
-            <div class="person-header">
-                <span class="person-name">👤 ${p.name}</span>
-                <div><button class="btn-small delete-person" data-id="${p.id}">删除人员</button></div>
-            </div>
-            <div class="account-section">
-                ${groupsHtml}
-                <hr>
-                ${examHtml}
-                <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
-                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div>📌 当前账户成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
-                        <div>💰 实际总成本: 
-                            <input type="number" id="manualCost_${p.id}" step="any" value="${manualCost.toFixed(2)}" 
-                                   style="width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right;">
-                            <button class="btn-small save-manual-cost" data-id="${p.id}" style="margin-left: 6px;">💾 保存</button>
-                        </div>
-                    </div>
-                    <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
-                        📊 总出金次数: ${totalWithdrawCount} | 累计出金: $${totalWithdrawAmount.toFixed(2)}
-                        ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 成本已覆盖</span>` : ''}
-                    </div>
+        return `
+            <div class="account-item ${isLive ? 'live-group' : ''}">
+                <div class="flex-between">
+                    <div><strong>${acc.platform}</strong> ${acc.alias ? `(${acc.alias})` : ''}</div>
+                    <div>${isLive ? '🔥Live' : '📘资助账户'}</div>
+                </div>
+                <div>💰 成本: $${acc.cost.toFixed(2)} | 出金次数: ${acc.withdrawals.length}</div>
+                ${withdrawalsHtml}
+                <div style="margin-top: 10px;">
+                    <button class="btn-small add-withdraw-funded" data-id="${acc.id}">➕ 记录出金</button>
+                    <button class="btn-small delete-funded" data-id="${acc.id}">🗑️ 删除账户</button>
                 </div>
             </div>
         `;
-        container.appendChild(card);
     }
-    bindPersonEvents();
-    
-    // 绑定手动成本保存按钮
-    document.querySelectorAll('.save-manual-cost').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const personId = parseInt(btn.dataset.id);
-            const input = document.getElementById(`manualCost_${personId}`);
-            const value = parseFloat(input.value);
-            if (!isNaN(value) && value >= 0) {
-                localStorage.setItem(`manual_cost_${personId}`, value);
-                showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的总成本: $${value.toFixed(2)}`);
-                renderAll(); // 刷新显示
-            } else {
-                showToast("❌ 请输入有效的金额");
-            }
-        });
-    });
-}
 
-function getAccountItemHtml(acc, isLive) {
-    // 生成出金记录列表（带删除按钮）
-    let withdrawalsHtml = '';
-    if (acc.withdrawals.length === 0) {
-        withdrawalsHtml = '<div style="padding: 4px 0;">暂无出金记录</div>';
-    } else {
-        withdrawalsHtml = '<div style="margin-top: 8px;">📅 出金记录：</div>';
-        acc.withdrawals.forEach((w, idx) => {
-            withdrawalsHtml += `
-                <div class="withdraw-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span>💰 $${w.amount} (${w.date})</span>
-                    <button class="delete-withdraw-btn" data-acc-id="${acc.id}" data-idx="${idx}" style="background: #fee2e2; border: none; border-radius: 20px; padding: 2px 10px; color: #b91c1c; cursor: pointer; font-size: 0.7rem;">🗑️ 删除</button>
+    function renderPersons() {
+        const container = document.getElementById("personsContainer");
+        container.innerHTML = "";
+        for(let p of persons) {
+            let personFunded = fundedAccounts.filter(f => f.personId === p.id);
+            const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
+            let groupsHtml = "";
+            for(let plat of platformSet) {
+                const accountsOfPlat = personFunded.filter(f => f.platform === plat);
+                const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
+                const liveAccounts = accountsOfPlat.filter(f => f.isLive);
+                if(normalAccounts.length > 0) {
+                    groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
+                    normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
+                }
+                if(liveAccounts.length > 0) {
+                    groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
+                    liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
+                }
+            }
+            if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
+            
+            const personExam = examAccounts.filter(e => e.personId === p.id);
+            let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
+            if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
+            else {
+                personExam.forEach(ex => {
+                    examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
+                });
+            }
+            
+            const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
+            const totalWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
+            const totalWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
+            
+            const manualCostKey = `manual_cost_${p.id}`;
+            let manualCost = localStorage.getItem(manualCostKey);
+            if (manualCost === null) manualCost = autoTotalCost;
+            else manualCost = parseFloat(manualCost);
+            
+            const card = document.createElement("div");
+            card.className = "person-card";
+            card.innerHTML = `
+                <div class="person-header">
+                    <span class="person-name">👤 ${p.name}</span>
+                    <div><button class="btn-small delete-person" data-id="${p.id}">删除人员</button></div>
+                </div>
+                <div class="account-section">
+                    ${groupsHtml}
+                    <hr>
+                    ${examHtml}
+                    <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
+                        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                            <div>📌 自动计算成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
+                            <div>💰 手动总成本: 
+                                <input type="number" id="manualCost_${p.id}" class="manual-cost-input" step="any" value="${manualCost.toFixed(2)}">
+                                <button class="btn-small save-manual-cost" data-id="${p.id}">💾 保存</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
+                            📊 总出金次数: ${totalWithdrawCount} | 累计出金: $${totalWithdrawAmount.toFixed(2)}
+                            ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 手动成本已覆盖</span>` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
+            container.appendChild(card);
+        }
+        bindPersonEvents();
+        
+        document.querySelectorAll('.save-manual-cost').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const personId = parseInt(btn.dataset.id);
+                const input = document.getElementById(`manualCost_${personId}`);
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    localStorage.setItem(`manual_cost_${personId}`, value);
+                    showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的总成本: $${value.toFixed(2)}`);
+                    renderAll();
+                } else {
+                    showToast("❌ 请输入有效的金额");
+                }
+            });
         });
     }
-    
-    return `
-        <div class="account-item ${isLive ? 'live-group' : ''}">
-            <div class="flex-between"><strong>${acc.platform}</strong> ${acc.alias ? `(${acc.alias})` : ''} ${isLive ? '🔥Live' : '📘资助账户'}</div>
-            <div>💰 成本: $${acc.cost.toFixed(2)} | 出金次数: ${acc.withdrawals.length}</div>
-            ${withdrawalsHtml}
-            <div style="margin-top: 10px;">
-                <button class="btn-small add-withdraw-funded" data-id="${acc.id}">➕ 记录出金</button>
-                <button class="btn-small delete-funded" data-id="${acc.id}">🗑️ 删除账户</button>
-            </div>
-        </div>
-    `;
-}
 
     function bindPersonEvents() {
         document.querySelectorAll('.delete-person').forEach(btn => {
-            btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); if(confirm("删除人员会删除其所有账户")){ persons = persons.filter(p=>p.id!==id); fundedAccounts = fundedAccounts.filter(f=>f.personId!==id); examAccounts = examAccounts.filter(e=>e.personId!==id); renderAll(); } });
+            btn.addEventListener('click', (e) => { 
+                let id = parseInt(btn.dataset.id); 
+                if(confirm("删除人员会删除其所有账户")){ 
+                    persons = persons.filter(p=>p.id!==id); 
+                    fundedAccounts = fundedAccounts.filter(f=>f.personId!==id); 
+                    examAccounts = examAccounts.filter(e=>e.personId!==id); 
+                    renderAll(); 
+                    showToast("已删除人员");
+                } 
+            });
         });
+        
         document.querySelectorAll('.add-withdraw-funded').forEach(btn => {
-            btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); openWithdrawByAccountId(id); });
+            btn.addEventListener('click', (e) => { 
+                let id = parseInt(btn.dataset.id); 
+                openWithdrawByAccountId(id); 
+            });
         });
+        
         document.querySelectorAll('.delete-funded').forEach(btn => {
-            btn.addEventListener('click', (e) => { let id = parseInt(btn.dataset.id); if(confirm("删除资助账户")){ fundedAccounts = fundedAccounts.filter(f=>f.id!==id); renderAll(); } });
+            btn.addEventListener('click', (e) => { 
+                let id = parseInt(btn.dataset.id); 
+                if(confirm("删除资助账户及其所有出金记录？")){ 
+                    fundedAccounts = fundedAccounts.filter(f=>f.id!==id); 
+                    renderAll(); 
+                    showToast("已删除账户"); 
+                } 
+            });
         });
+        
         document.querySelectorAll('.activate-exam').forEach(btn => {
-            btn.addEventListener('click', (e) => { let examId = parseInt(btn.dataset.id); const exam = examAccounts.find(e=>e.id===examId); if(exam && confirm(`激活 ${exam.platform} 考试账户？`)){ fundedAccounts.push({ id: nextFundedId++, personId: exam.personId, platform: exam.platform, alias: exam.alias, cost: 0, isLive: false, withdrawals: [] }); examAccounts = examAccounts.filter(e=>e.id!==examId); renderAll(); showToast("已激活"); } });
+            btn.addEventListener('click', (e) => { 
+                let examId = parseInt(btn.dataset.id); 
+                const exam = examAccounts.find(e=>e.id===examId); 
+                if(exam && confirm(`激活 ${exam.platform} 考试账户？`)){ 
+                    fundedAccounts.push({ 
+                        id: nextFundedId++, 
+                        personId: exam.personId, 
+                        platform: exam.platform, 
+                        alias: exam.alias, 
+                        cost: 0, 
+                        isLive: false, 
+                        withdrawals: [] 
+                    }); 
+                    examAccounts = examAccounts.filter(e=>e.id!==examId); 
+                    renderAll(); 
+                    showToast("已激活为资助账户"); 
+                } 
+            });
+        });
+        
+        // 删除单条出金记录
+        document.querySelectorAll('.delete-withdraw-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const accId = parseInt(btn.getAttribute('data-acc-id'));
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                const account = fundedAccounts.find(a => a.id === accId);
+                if (account && account.withdrawals[idx]) {
+                    const amount = account.withdrawals[idx].amount;
+                    const date = account.withdrawals[idx].date;
+                    if (confirm(`确定删除出金记录吗？\n金额: $${amount}\n日期: ${date}`)) {
+                        account.withdrawals.splice(idx, 1);
+                        renderAll();
+                        showToast(`✅ 已删除出金记录 $${amount}`);
+                    }
+                }
+            });
         });
     }
 
@@ -431,7 +481,7 @@ function getAccountItemHtml(acc, isLive) {
             p.cnt += acc.withdrawals.length;
             p.amt += acc.withdrawals.reduce((s,w)=>s+w.amount,0);
         });
-        let html = `<div>🔥 Live账户: ${liveAccounts.length}个 | 出金次数: ${totalCnt} | 总额: $${totalAmt.toFixed(2)}</div><div style="display:flex; gap:15px; margin-top:12px;">`;
+        let html = `<div>🔥 Live账户: ${liveAccounts.length}个 | 出金次数: ${totalCnt} | 总额: $${totalAmt.toFixed(2)}</div><div style="display:flex; gap:15px; margin-top:12px; flex-wrap:wrap;">`;
         for(let [plat, stat] of platMap.entries()) {
             html += `<div style="background:#fef9c3; border-radius:20px; padding:8px 16px;"><strong>${plat}</strong><br/>出金次数: ${stat.cnt}<br/>总额: $${stat.amt.toFixed(2)}</div>`;
         }
