@@ -251,56 +251,95 @@
         });
     }
 
-    function renderPersons() {
-        const container = document.getElementById("personsContainer");
-        container.innerHTML = "";
-        for(let p of persons) {
-            let personFunded = fundedAccounts.filter(f => f.personId === p.id);
-            const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
-            let groupsHtml = "";
-            for(let plat of platformSet) {
-                const accountsOfPlat = personFunded.filter(f => f.platform === plat);
-                const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
-                const liveAccounts = accountsOfPlat.filter(f => f.isLive);
-                if(normalAccounts.length > 0) {
-                    groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
-                    normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
-                }
-                if(liveAccounts.length > 0) {
-                    groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
-                    liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
-                }
+function renderPersons() {
+    const container = document.getElementById("personsContainer");
+    container.innerHTML = "";
+    for(let p of persons) {
+        let personFunded = fundedAccounts.filter(f => f.personId === p.id);
+        const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
+        let groupsHtml = "";
+        for(let plat of platformSet) {
+            const accountsOfPlat = personFunded.filter(f => f.platform === plat);
+            const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
+            const liveAccounts = accountsOfPlat.filter(f => f.isLive);
+            if(normalAccounts.length > 0) {
+                groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
+                normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
             }
-            if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
-            const personExam = examAccounts.filter(e => e.personId === p.id);
-            let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
-            if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
-            else {
-                personExam.forEach(ex => {
-                    examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
-                });
+            if(liveAccounts.length > 0) {
+                groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
+                liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
             }
-            const totalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
-            const totalWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
-            const totalWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
-            const card = document.createElement("div");
-            card.className = "person-card";
-            card.innerHTML = `
-                <div class="person-header">
-                    <span class="person-name">👤 ${p.name}</span>
-                    <div><button class="btn-small delete-person" data-id="${p.id}">删除人员</button></div>
-                </div>
-                <div class="account-section">
-                    ${groupsHtml}
-                    <hr>
-                    ${examHtml}
-                    <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:8px;">📌 总计: 成本 $${totalCost.toFixed(2)} | 总出金 ${totalWithdrawCount}次 | 累计出金 $${totalWithdrawAmount.toFixed(2)}</div>
-                </div>
-            `;
-            container.appendChild(card);
         }
-        bindPersonEvents();
+        if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
+        
+        const personExam = examAccounts.filter(e => e.personId === p.id);
+        let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
+        if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
+        else {
+            personExam.forEach(ex => {
+                examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
+            });
+        }
+        
+        // 自动计算的总成本（基于现有资助账户）
+        const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
+        const totalWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
+        const totalWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
+        
+        // 获取手动输入的总成本（存储在 localStorage 中）
+        const manualCostKey = `manual_cost_${p.id}`;
+        let manualCost = localStorage.getItem(manualCostKey);
+        if (manualCost === null) manualCost = autoTotalCost;
+        else manualCost = parseFloat(manualCost);
+        
+        const card = document.createElement("div");
+        card.className = "person-card";
+        card.innerHTML = `
+            <div class="person-header">
+                <span class="person-name">👤 ${p.name}</span>
+                <div><button class="btn-small delete-person" data-id="${p.id}">删除人员</button></div>
+            </div>
+            <div class="account-section">
+                ${groupsHtml}
+                <hr>
+                ${examHtml}
+                <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div>📌 自动计算成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
+                        <div>💰 手动总成本: 
+                            <input type="number" id="manualCost_${p.id}" step="any" value="${manualCost.toFixed(2)}" 
+                                   style="width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right;">
+                            <button class="btn-small save-manual-cost" data-id="${p.id}" style="margin-left: 6px;">💾 保存</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
+                        📊 总出金次数: ${totalWithdrawCount} | 累计出金: $${totalWithdrawAmount.toFixed(2)}
+                        ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 手动成本已覆盖自动计算</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
     }
+    bindPersonEvents();
+    
+    // 绑定手动成本保存按钮
+    document.querySelectorAll('.save-manual-cost').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const personId = parseInt(btn.dataset.id);
+            const input = document.getElementById(`manualCost_${personId}`);
+            const value = parseFloat(input.value);
+            if (!isNaN(value) && value >= 0) {
+                localStorage.setItem(`manual_cost_${personId}`, value);
+                showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的总成本: $${value.toFixed(2)}`);
+                renderAll(); // 刷新显示
+            } else {
+                showToast("❌ 请输入有效的金额");
+            }
+        });
+    });
+}
 
     function getAccountItemHtml(acc, isLive) {
         return `
