@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>PropFirm工作室系统 | 云端同步版</title>
+    <title>PropFirm工作室</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e5631'/%3E%3Ctext x='50' y='72' font-size='55' text-anchor='middle' fill='%23ffffff'%3E📈%3C/text%3E%3C/svg%3E">
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -51,8 +51,7 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>📈 PropFirm 工作室管理系统 | 云端同步版</h1>
-        <p>多设备数据共享 · 支持删除单条出金记录 · 手动成本覆盖</p>
+        <h1>📈 PropFirm 工作室</h1>
     </div>
 
     <div class="toolbar">
@@ -330,8 +329,8 @@
                     ${examHtml}
                     <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
                         <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                            <div>📌 自动计算成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
-                            <div>💰 手动总成本: 
+                            <div>📌 当前账户成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
+                            <div>💰 实际总成本: 
                                 <input type="number" id="manualCost_${p.id}" class="manual-cost-input" step="any" value="${manualCost.toFixed(2)}">
                                 <button class="btn-small save-manual-cost" data-id="${p.id}">💾 保存</button>
                             </div>
