@@ -306,8 +306,8 @@ function renderPersons() {
                 ${examHtml}
                 <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
                     <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div>📌 自动计算成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
-                        <div>💰 手动总成本: 
+                        <div>📌 当前账户成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
+                        <div>💰 实际总成本: 
                             <input type="number" id="manualCost_${p.id}" step="any" value="${manualCost.toFixed(2)}" 
                                    style="width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right;">
                             <button class="btn-small save-manual-cost" data-id="${p.id}" style="margin-left: 6px;">💾 保存</button>
@@ -315,7 +315,7 @@ function renderPersons() {
                     </div>
                     <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
                         📊 总出金次数: ${totalWithdrawCount} | 累计出金: $${totalWithdrawAmount.toFixed(2)}
-                        ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 手动成本已覆盖自动计算</span>` : ''}
+                        ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 成本已覆盖</span>` : ''}
                     </div>
                 </div>
             </div>
