@@ -58,13 +58,13 @@
         .del-platform { cursor: pointer; color: #b91c1c; font-weight: bold; margin-left: 6px; }
         .sync-status { background: #e6f7ec; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; }
         hr { margin: 12px 0; }
-        .manual-cost-input { width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right; }
-        .manual-withdraw-input { width: 140px; padding: 6px 10px; border-radius: 20px; border: 1px solid #ccc; text-align: right; font-weight: 500; }
+        .manual-input { width: 120px; padding: 6px 10px; border-radius: 20px; border: 1px solid #ccc; text-align: right; font-weight: 500; }
         .empty-person { text-align: center; padding: 60px 20px; color: #64748b; }
         .stat-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
-        .stat-box { background: #f8fafc; border-radius: 20px; padding: 12px 16px; flex: 1; min-width: 150px; }
+        .stat-box { background: #f8fafc; border-radius: 20px; padding: 12px 16px; flex: 1; min-width: 140px; }
         .stat-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
-        .stat-number { font-size: 1.4rem; font-weight: 700; }
+        .stat-number { font-size: 1.3rem; font-weight: 700; }
+        .manual-box { background: #e6f7ec; border-radius: 20px; padding: 12px 16px; }
         @media (max-width: 800px) {
             .main-layout { flex-direction: column; }
             .person-sidebar { width: 100%; }
@@ -114,7 +114,7 @@
     </div>
 
     <div class="summary-section">
-        <div class="summary-title" style="font-size:1.2rem;">🔥 Live账户出金专项</div>
+        <div class="summary-title" style="font-size:1.2rem;">🔥 Live账户出金专项（基于现存账户）</div>
         <div id="liveStatsPanel"></div>
     </div>
 </div>
@@ -149,28 +149,72 @@
     let currentPersonId = null;
     const STORAGE_KEY = "propfirm_local_data";
 
-    // 获取手动实际总出金
+    // ========== 手动数据存储函数 ==========
+    // 手动实际总出金
     function getManualTotalWithdraw(personId) {
         const key = `manual_withdraw_${personId}`;
         const val = localStorage.getItem(key);
         return val !== null ? parseFloat(val) : null;
     }
-
     function setManualTotalWithdraw(personId, amount) {
         localStorage.setItem(`manual_withdraw_${personId}`, amount);
     }
-
+    
+    // 手动出金次数
+    function getManualWithdrawCount(personId) {
+        const key = `manual_count_${personId}`;
+        const val = localStorage.getItem(key);
+        return val !== null ? parseInt(val) : null;
+    }
+    function setManualWithdrawCount(personId, count) {
+        localStorage.setItem(`manual_count_${personId}`, count);
+    }
+    
+    // 手动成本
+    function getManualCost(personId) {
+        const key = `manual_cost_${personId}`;
+        const val = localStorage.getItem(key);
+        return val !== null ? parseFloat(val) : null;
+    }
+    function setManualCost(personId, cost) {
+        localStorage.setItem(`manual_cost_${personId}`, cost);
+    }
+    
     // 获取自动计算的总出金（基于现有账户）
     function getAutoTotalWithdraw(personId) {
         const personFunded = fundedAccounts.filter(f => f.personId === personId);
         return personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
     }
-
-    // 获取显示用的总出金（优先手动，否则用自动）
+    
+    // 获取自动计算的出金次数
+    function getAutoWithdrawCount(personId) {
+        const personFunded = fundedAccounts.filter(f => f.personId === personId);
+        return personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
+    }
+    
+    // 获取自动计算的总成本
+    function getAutoTotalCost(personId) {
+        const personFunded = fundedAccounts.filter(f => f.personId === personId);
+        return personFunded.reduce((s,f)=> s + (f.cost||0), 0);
+    }
+    
+    // 获取显示用的数据（优先手动，否则用自动）
     function getDisplayTotalWithdraw(personId) {
         const manual = getManualTotalWithdraw(personId);
         if (manual !== null && !isNaN(manual)) return manual;
         return getAutoTotalWithdraw(personId);
+    }
+    
+    function getDisplayWithdrawCount(personId) {
+        const manual = getManualWithdrawCount(personId);
+        if (manual !== null && !isNaN(manual)) return manual;
+        return getAutoWithdrawCount(personId);
+    }
+    
+    function getDisplayCost(personId) {
+        const manual = getManualCost(personId);
+        if (manual !== null && !isNaN(manual)) return manual;
+        return getAutoTotalCost(personId);
     }
 
     function saveToLocal() {
@@ -266,7 +310,7 @@
         renderPlatformLibrary();
         renderPersonSidebar();
         renderPersonDetail();
-        renderPlatformSummary();
+        renderPlatformSummary();  // 使用手动数据汇总
         renderExamPanel();
         renderLivePanel();
         updateSelects();
@@ -396,17 +440,19 @@
             });
         }
         
-        const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
-        const autoWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
-        const autoWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
+        // 自动数据
+        const autoTotalCost = getAutoTotalCost(p.id);
+        const autoWithdrawCount = getAutoWithdrawCount(p.id);
+        const autoWithdrawAmount = getAutoTotalWithdraw(p.id);
         
-        const manualCostKey = `manual_cost_${p.id}`;
-        let manualCost = localStorage.getItem(manualCostKey);
-        if (manualCost === null) manualCost = autoTotalCost;
-        else manualCost = parseFloat(manualCost);
+        // 手动数据（当前值）
+        const currentManualCost = getManualCost(p.id);
+        const currentManualCount = getManualWithdrawCount(p.id);
+        const currentManualAmount = getManualTotalWithdraw(p.id);
         
-        const currentManualWithdraw = getManualTotalWithdraw(p.id);
-        const manualWithdrawValue = (currentManualWithdraw !== null && !isNaN(currentManualWithdraw)) ? currentManualWithdraw : autoWithdrawAmount;
+        const manualCostValue = (currentManualCost !== null && !isNaN(currentManualCost)) ? currentManualCost : autoTotalCost;
+        const manualCountValue = (currentManualCount !== null && !isNaN(currentManualCount)) ? currentManualCount : autoWithdrawCount;
+        const manualAmountValue = (currentManualAmount !== null && !isNaN(currentManualAmount)) ? currentManualAmount : autoWithdrawAmount;
         
         container.innerHTML = `
             <div class="person-card">
@@ -419,41 +465,39 @@
                     <hr>
                     ${examHtml}
                     
-                    <!-- 统计区域 -->
-                    <div style="margin-top:16px; background:#f1f5f9; border-radius:20px; padding:16px;">
+                    <!-- 手动统计区域 -->
+                    <div style="margin-top:16px;">
+                        <div class="group-title" style="background:#e6f7ec; margin-top:0;">✏️ 手动统计数据（覆盖自动计算）</div>
+                        
                         <div class="stat-row">
-                            <div class="stat-box">
-                                <div class="stat-label">📊 自动出金次数</div>
-                                <div class="stat-number">${autoWithdrawCount}</div>
-                                <div class="stat-label" style="font-size:0.65rem;">基于现存账户</div>
+                            <div class="manual-box" style="flex:1;">
+                                <div class="stat-label">📊 手动出金次数</div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <input type="number" id="manualCount_${p.id}" class="manual-input" step="1" value="${manualCountValue}" placeholder="出金次数">
+                                    <button class="btn-small save-manual-count" data-id="${p.id}">💾 保存</button>
+                                </div>
+                                <div class="stat-label" style="font-size:0.65rem; margin-top:4px;">自动统计: ${autoWithdrawCount}次</div>
                             </div>
-                            <div class="stat-box">
-                                <div class="stat-label">💰 自动累计出金</div>
-                                <div class="stat-number">$${autoWithdrawAmount.toFixed(0)}</div>
-                                <div class="stat-label" style="font-size:0.65rem;">基于现存账户</div>
+                            <div class="manual-box" style="flex:1;">
+                                <div class="stat-label">💰 手动实际总出金</div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <input type="number" id="manualAmount_${p.id}" class="manual-input" step="any" value="${manualAmountValue.toFixed(2)}" placeholder="实际总出金">
+                                    <button class="btn-small save-manual-amount" data-id="${p.id}">💾 保存</button>
+                                </div>
+                                <div class="stat-label" style="font-size:0.65rem; margin-top:4px;">自动统计: $${autoWithdrawAmount.toFixed(0)}</div>
+                            </div>
+                            <div class="manual-box" style="flex:1;">
+                                <div class="stat-label">📌 手动总成本</div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <input type="number" id="manualCost_${p.id}" class="manual-input" step="any" value="${manualCostValue.toFixed(2)}" placeholder="总成本">
+                                    <button class="btn-small save-manual-cost" data-id="${p.id}">💾 保存</button>
+                                </div>
+                                <div class="stat-label" style="font-size:0.65rem; margin-top:4px;">自动统计: $${autoTotalCost.toFixed(0)}</div>
                             </div>
                         </div>
                         
-                        <div class="stat-row">
-                            <div class="stat-box" style="background:#e6f7ec;">
-                                <div class="stat-label">✏️ 实际总出金 (手动)</div>
-                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
-                                    <input type="number" id="manualWithdraw_${p.id}" class="manual-withdraw-input" step="any" value="${manualWithdrawValue.toFixed(2)}" placeholder="实际总出金">
-                                    <button class="btn-small save-manual-withdraw" data-id="${p.id}">💾 保存</button>
-                                </div>
-                                <div class="stat-label" style="font-size:0.65rem; margin-top:6px;">⭐ 左侧列表将显示此数值</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">📌 自动计算成本</div>
-                                <div class="stat-number">$${autoTotalCost.toFixed(0)}</div>
-                                <div style="margin-top:6px;">
-                                    <input type="number" id="manualCost_${p.id}" class="manual-cost-input" step="any" value="${manualCost.toFixed(2)}" style="width:100px;">
-                                    <button class="btn-small save-manual-cost" data-id="${p.id}">保存</button>
-                                </div>
-                            </div>
-                        </div>
-                        ${manualWithdrawValue !== autoWithdrawAmount ? `<div style="margin-top:8px; padding:6px 12px; background:#fef3c7; border-radius:16px; font-size:0.7rem;">⚠️ 手动实际出金 ($${manualWithdrawValue.toFixed(0)}) 已覆盖自动统计 ($${autoWithdrawAmount.toFixed(0)})</div>` : ''}
-                        ${manualCost !== autoTotalCost ? `<div style="margin-top:6px; padding:6px 12px; background:#fef3c7; border-radius:16px; font-size:0.7rem;">⚠️ 手动成本 ($${manualCost.toFixed(0)}) 已覆盖自动计算 ($${autoTotalCost.toFixed(0)})</div>` : ''}
+                        ${manualCountValue !== autoWithdrawCount || manualAmountValue !== autoWithdrawAmount || manualCostValue !== autoTotalCost ? 
+                            `<div style="margin-top:8px; padding:6px 12px; background:#fef3c7; border-radius:16px; font-size:0.7rem;">⚠️ 手动数据已覆盖自动统计</div>` : ''}
                     </div>
                 </div>
             </div>
@@ -513,8 +557,7 @@
                 const account = fundedAccounts.find(a => a.id === accId);
                 if (account && account.withdrawals[idx]) {
                     const amount = account.withdrawals[idx].amount;
-                    const date = account.withdrawals[idx].date;
-                    if (confirm(`确定删除出金记录吗？\n金额: $${amount}\n日期: ${date}`)) {
+                    if (confirm(`确定删除出金记录 $${amount} 吗？`)) {
                         account.withdrawals.splice(idx, 1);
                         renderAll();
                         showToast(`✅ 已删除出金记录 $${amount}`);
@@ -523,52 +566,93 @@
             });
         });
         
+        // 保存手动出金次数
+        document.querySelectorAll('.save-manual-count').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const personId = parseInt(btn.dataset.id);
+                const input = document.getElementById(`manualCount_${personId}`);
+                const value = parseInt(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    setManualWithdrawCount(personId, value);
+                    showToast(`✅ 已保存出金次数: ${value}`);
+                    renderPersonSidebar();
+                    renderPlatformSummary();
+                    renderPersonDetail();
+                } else { showToast("❌ 请输入有效数字"); }
+            });
+        });
+        
+        // 保存手动实际总出金
+        document.querySelectorAll('.save-manual-amount').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const personId = parseInt(btn.dataset.id);
+                const input = document.getElementById(`manualAmount_${personId}`);
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    setManualTotalWithdraw(personId, value);
+                    showToast(`✅ 已保存实际总出金: $${value.toFixed(2)}`);
+                    renderPersonSidebar();
+                    renderPlatformSummary();
+                    renderPersonDetail();
+                } else { showToast("❌ 请输入有效金额"); }
+            });
+        });
+        
+        // 保存手动成本
         document.querySelectorAll('.save-manual-cost').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const personId = parseInt(btn.dataset.id);
                 const input = document.getElementById(`manualCost_${personId}`);
                 const value = parseFloat(input.value);
                 if (!isNaN(value) && value >= 0) {
-                    localStorage.setItem(`manual_cost_${personId}`, value);
-                    showToast(`✅ 已保存成本`);
-                    renderPersonDetail();
-                    renderPersonSidebar();
-                } else { showToast("❌ 请输入有效金额"); }
-            });
-        });
-        
-        document.querySelectorAll('.save-manual-withdraw').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const personId = parseInt(btn.dataset.id);
-                const input = document.getElementById(`manualWithdraw_${personId}`);
-                const value = parseFloat(input.value);
-                if (!isNaN(value) && value >= 0) {
-                    setManualTotalWithdraw(personId, value);
-                    showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的实际总出金: $${value.toFixed(2)}`);
-                    renderPersonSidebar();
+                    setManualCost(personId, value);
+                    showToast(`✅ 已保存成本: $${value.toFixed(2)}`);
+                    renderPlatformSummary();
                     renderPersonDetail();
                 } else { showToast("❌ 请输入有效金额"); }
             });
         });
     }
 
+    // 各平台汇总 - 使用手动数据（所有交易员的手动数据累计）
     function renderPlatformSummary() {
-        const map = new Map();
-        fundedAccounts.forEach(acc => {
-            let plat = acc.platform;
-            if(!map.has(plat)) map.set(plat, { totalWithdrawCount:0, totalAmount:0, totalCost:0 });
-            let stat = map.get(plat);
-            stat.totalCost += acc.cost;
-            let amt = acc.withdrawals.reduce((s,w)=>s+w.amount,0);
-            stat.totalAmount += amt;
-            stat.totalWithdrawCount += acc.withdrawals.length;
+        // 由于平台汇总不再按平台区分，改为显示所有交易员的累计数据
+        let totalWithdrawCount = 0;
+        let totalWithdrawAmount = 0;
+        let totalCost = 0;
+        
+        persons.forEach(p => {
+            totalWithdrawCount += getDisplayWithdrawCount(p.id);
+            totalWithdrawAmount += getDisplayTotalWithdraw(p.id);
+            totalCost += getDisplayCost(p.id);
         });
-        let html = `<table><thead><tr><th>平台</th><th>总出金次数</th><th>总出金量</th><th>总成本</th><th>净利润</th></tr></thead><tbody>`;
-        for(let [plat, d] of map.entries()) {
-            let profit = d.totalAmount - d.totalCost;
-            html += `<tr><td><strong>${plat}</strong></td><td>${d.totalWithdrawCount}</td><td>$${d.totalAmount.toFixed(2)}</td><td>$${d.totalCost.toFixed(2)}</td><td style="color:${profit>=0?'green':'red'}">$${profit.toFixed(2)}</td></tr>`;
-        }
-        html += `</tbody>`;
+        
+        const profit = totalWithdrawAmount - totalCost;
+        
+        let html = `
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 20px; background: #f8fafc; border-radius: 24px;">
+                <div style="text-align: center; flex: 1;">
+                    <div class="stat-label">📊 总出金次数</div>
+                    <div class="stat-number" style="font-size: 1.8rem;">${totalWithdrawCount}</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div class="stat-label">💰 总出金量</div>
+                    <div class="stat-number" style="font-size: 1.8rem;">$${totalWithdrawAmount.toFixed(2)}</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div class="stat-label">📌 总成本</div>
+                    <div class="stat-number" style="font-size: 1.8rem;">$${totalCost.toFixed(2)}</div>
+                </div>
+                <div style="text-align: center; flex: 1;">
+                    <div class="stat-label">📈 净利润</div>
+                    <div class="stat-number" style="font-size: 1.8rem; color: ${profit>=0?'#1e5631':'#b91c1c'};">$${profit.toFixed(2)}</div>
+                </div>
+            </div>
+            <div style="margin-top: 12px; padding: 8px; text-align: center; font-size: 0.7rem; color: #64748b;">
+                📌 数据来源：所有交易员的手动统计数据
+            </div>
+        `;
+        
         document.getElementById("platformSummaryTable").innerHTML = html;
     }
 
