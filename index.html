@@ -11,6 +11,7 @@
         * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', 'Inter', sans-serif; }
         body { background: #f1f5f9; margin: 0; padding: 24px 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
+        
         .header { background: linear-gradient(135deg, #0c4a6e, #1e3a5f); color: white; border-radius: 28px; padding: 20px 28px; margin-bottom: 28px; }
         .toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; background: white; padding: 12px 20px; border-radius: 60px; align-items: center; }
         button { background: #eef2ff; border: none; padding: 8px 18px; border-radius: 40px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
@@ -18,16 +19,28 @@
         button.danger { background: #fee2e2; color: #b91c1c; }
         button.cloud { background: #3b82f6; color: white; }
         .btn-small { padding: 4px 12px; font-size: 0.7rem; background: white; border: 1px solid #ccc; margin-right: 6px; border-radius: 20px; cursor: pointer; }
-        .persons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 24px; margin-bottom: 40px; }
+        
+        .main-layout { display: flex; gap: 24px; flex-wrap: wrap; }
+        .person-sidebar { width: 280px; background: white; border-radius: 28px; padding: 16px; height: fit-content; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .person-sidebar h3 { margin: 0 0 16px 0; font-size: 1.1rem; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+        .person-list { display: flex; flex-direction: column; gap: 8px; max-height: 70vh; overflow-y: auto; }
+        .person-item { padding: 12px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .person-item:hover { background: #eef2ff; transform: translateX(4px); }
+        .person-item.active { background: #1e5631; color: white; border-color: #1e5631; }
+        .person-item.active .person-stats { color: #ccf0d4; }
+        .person-name-side { font-weight: 700; }
+        .person-stats { font-size: 0.7rem; color: #64748b; }
+        
+        .person-detail { flex: 1; min-width: 500px; }
         .person-card { background: white; border-radius: 28px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .person-header { background: #f8fafc; padding: 16px 20px; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .person-name { font-size: 1.3rem; font-weight: 700; background: #e6f7ec; padding: 4px 14px; border-radius: 40px; }
-        .account-section { padding: 16px; }
-        .group-title { font-weight: 700; margin: 16px 0 8px 0; background: #eef2ff; padding: 6px 12px; border-radius: 24px; font-size: 0.8rem; }
-        .account-item { background: #f9f9fb; border-radius: 20px; margin-bottom: 12px; padding: 12px; border-left: 4px solid #94a3b8; }
+        .person-header { background: #f8fafc; padding: 20px 24px; border-bottom: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .person-name { font-size: 1.5rem; font-weight: 700; background: #e6f7ec; padding: 6px 18px; border-radius: 40px; }
+        .account-section { padding: 20px; }
+        .group-title { font-weight: 700; margin: 20px 0 12px 0; background: #eef2ff; padding: 8px 16px; border-radius: 24px; font-size: 0.9rem; }
+        .account-item { background: #f9f9fb; border-radius: 20px; margin-bottom: 12px; padding: 14px; border-left: 4px solid #94a3b8; }
         .account-item.live-group { border-left-color: #f59e0b; background: #fffbeb; }
         .flex-between { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
-        .withdraw-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; background: white; border-radius: 16px; padding: 4px 8px; }
+        .withdraw-item-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; background: white; border-radius: 16px; padding: 6px 12px; }
         .delete-withdraw-btn { background: #fee2e2; border: none; border-radius: 20px; padding: 2px 12px; color: #b91c1c; cursor: pointer; font-size: 0.7rem; }
         .summary-section, .exam-summary { background: white; border-radius: 28px; padding: 20px; margin-bottom: 28px; }
         table { width: 100%; border-collapse: collapse; }
@@ -46,6 +59,17 @@
         .sync-status { background: #e6f7ec; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; }
         hr { margin: 12px 0; }
         .manual-cost-input { width: 120px; padding: 4px 8px; border-radius: 20px; border: 1px solid #ccc; text-align: right; }
+        .manual-withdraw-input { width: 140px; padding: 6px 10px; border-radius: 20px; border: 1px solid #ccc; text-align: right; font-weight: 500; }
+        .empty-person { text-align: center; padding: 60px 20px; color: #64748b; }
+        .stat-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+        .stat-box { background: #f8fafc; border-radius: 20px; padding: 12px 16px; flex: 1; min-width: 150px; }
+        .stat-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; }
+        .stat-number { font-size: 1.4rem; font-weight: 700; }
+        @media (max-width: 800px) {
+            .main-layout { flex-direction: column; }
+            .person-sidebar { width: 100%; }
+            .person-detail { min-width: auto; }
+        }
     </style>
 </head>
 <body>
@@ -71,10 +95,16 @@
         <div id="platformList" class="platform-list"></div>
     </div>
 
-    <div id="personsContainer" class="persons-grid"></div>
+    <div class="main-layout">
+        <div class="person-sidebar">
+            <h3>👥 交易员列表</h3>
+            <div id="personListContainer" class="person-list"></div>
+        </div>
+        <div id="personDetailContainer" class="person-detail"></div>
+    </div>
 
     <div class="summary-section">
-        <div class="summary-title" style="font-size:1.2rem; font-weight:700;">📈 各平台资助账户总览</div>
+        <div class="summary-title" style="font-size:1.2rem; font-weight:700;">📈 出金情况总览</div>
         <div id="platformSummaryTable"></div>
     </div>
 
@@ -99,7 +129,6 @@
 <div id="toastMsg" class="toast"></div>
 
 <script>
-    // ==================== Firebase 配置 ====================
     const firebaseConfig = {
         apiKey: "AIzaSyBR0LfYYYalZT4IYtNP9IwisTbjTZz_dxg",
         authDomain: "propfirm-studio.firebaseapp.com",
@@ -112,16 +141,40 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ==================== 数据结构 ====================
     let platforms = [];
     let persons = [];
     let fundedAccounts = [];
     let examAccounts = [];
     let nextPersonId = 1, nextFundedId = 1, nextExamId = 1;
+    let currentPersonId = null;
     const STORAGE_KEY = "propfirm_local_data";
 
+    // 获取手动实际总出金
+    function getManualTotalWithdraw(personId) {
+        const key = `manual_withdraw_${personId}`;
+        const val = localStorage.getItem(key);
+        return val !== null ? parseFloat(val) : null;
+    }
+
+    function setManualTotalWithdraw(personId, amount) {
+        localStorage.setItem(`manual_withdraw_${personId}`, amount);
+    }
+
+    // 获取自动计算的总出金（基于现有账户）
+    function getAutoTotalWithdraw(personId) {
+        const personFunded = fundedAccounts.filter(f => f.personId === personId);
+        return personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
+    }
+
+    // 获取显示用的总出金（优先手动，否则用自动）
+    function getDisplayTotalWithdraw(personId) {
+        const manual = getManualTotalWithdraw(personId);
+        if (manual !== null && !isNaN(manual)) return manual;
+        return getAutoTotalWithdraw(personId);
+    }
+
     function saveToLocal() {
-        const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId };
+        const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId, currentPersonId };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         document.getElementById("syncStatus").innerHTML = "💾 本地已保存";
         setTimeout(() => { if(document.getElementById("syncStatus")) document.getElementById("syncStatus").innerHTML = "⚪ 未同步"; }, 2000);
@@ -139,6 +192,7 @@
                 nextPersonId = d.nextPersonId || 1;
                 nextFundedId = d.nextFundedId || 1;
                 nextExamId = d.nextExamId || 1;
+                currentPersonId = d.currentPersonId || (persons.length > 0 ? persons[0].id : null);
                 if(platforms.length === 0) loadDemoData();
                 return true;
             } catch(e) {}
@@ -149,20 +203,23 @@
 
     function loadDemoData() {
         platforms = ["FTMO", "MYFUNDEDFX", "THE_FUNDED_TRADER"];
-        persons = [{ id: 1, name: "张三" }, { id: 2, name: "李四" }];
-        nextPersonId = 3;
+        persons = [{ id: 1, name: "张三" }, { id: 2, name: "李四" }, { id: 3, name: "王五" }];
+        nextPersonId = 4;
         fundedAccounts = [
             { id: 1, personId: 1, platform: "FTMO", alias: "主账户", cost: 550, isLive: true, withdrawals: [{ amount: 4200, date: "2025-01-10" }, { amount: 3800, date: "2025-02-01" }] },
             { id: 2, personId: 1, platform: "MYFUNDEDFX", alias: "二号", cost: 350, isLive: false, withdrawals: [{ amount: 1250, date: "2025-01-20" }] },
-            { id: 3, personId: 2, platform: "FTMO", alias: "李四主力", cost: 550, isLive: true, withdrawals: [{ amount: 6100, date: "2025-01-15" }, { amount: 2700, date: "2025-02-10" }] }
+            { id: 3, personId: 2, platform: "FTMO", alias: "李四主力", cost: 550, isLive: true, withdrawals: [{ amount: 6100, date: "2025-01-15" }, { amount: 2700, date: "2025-02-10" }] },
+            { id: 4, personId: 3, platform: "THE_FUNDED_TRADER", alias: "王五账户", cost: 400, isLive: false, withdrawals: [{ amount: 2000, date: "2025-03-01" }] }
         ];
-        nextFundedId = 4;
+        nextFundedId = 5;
         examAccounts = [
             { id: 1, personId: 1, platform: "FTMO", alias: "挑战一号" },
             { id: 2, personId: 1, platform: "FTMO", alias: "挑战二号" },
-            { id: 3, personId: 2, platform: "THE_FUNDED_TRADER", alias: "考试通过" }
+            { id: 3, personId: 2, platform: "THE_FUNDED_TRADER", alias: "考试通过" },
+            { id: 4, personId: 3, platform: "FTMO", alias: "王五考试" }
         ];
-        nextExamId = 4;
+        nextExamId = 5;
+        currentPersonId = persons.length > 0 ? persons[0].id : null;
         saveToLocal();
     }
 
@@ -173,19 +230,15 @@
         setTimeout(() => toast.style.opacity = "0", 2000);
     }
 
-    // ==================== 云端同步 ====================
     async function syncToCloud() {
         showToast("📡 正在同步到云端...");
-        const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId, timestamp: new Date().toISOString() };
+        const data = { platforms, persons, fundedAccounts, examAccounts, nextPersonId, nextFundedId, nextExamId, currentPersonId, timestamp: new Date().toISOString() };
         try {
             await db.collection("propfirmData").doc("mainData").set(data);
             showToast("✅ 云端同步成功！");
             document.getElementById("syncStatus").innerHTML = "☁️ 已同步";
             setTimeout(() => { if(document.getElementById("syncStatus")) document.getElementById("syncStatus").innerHTML = "⚪ 未同步"; }, 3000);
-        } catch(e) {
-            console.error("同步错误:", e);
-            showToast("❌ 同步失败: " + e.message);
-        }
+        } catch(e) { showToast("❌ 同步失败: " + e.message); }
     }
 
     async function loadFromCloud() {
@@ -201,27 +254,22 @@
                 nextPersonId = data.nextPersonId || 1;
                 nextFundedId = data.nextFundedId || 1;
                 nextExamId = data.nextExamId || 1;
+                currentPersonId = data.currentPersonId || (persons.length > 0 ? persons[0].id : null);
                 saveToLocal();
                 renderAll();
                 showToast("✅ 从云端加载成功！");
-                document.getElementById("syncStatus").innerHTML = "☁️ 已加载";
-            } else {
-                showToast("⚠️ 云端暂无数据，请先同步");
-            }
-        } catch(e) {
-            console.error("加载错误:", e);
-            showToast("❌ 加载失败: " + e.message);
-        }
+            } else { showToast("⚠️ 云端暂无数据"); }
+        } catch(e) { showToast("❌ 加载失败"); }
     }
 
-    // ==================== 渲染函数 ====================
     function renderAll() {
         renderPlatformLibrary();
-        renderPersons();
+        renderPersonSidebar();
+        renderPersonDetail();
         renderPlatformSummary();
         renderExamPanel();
         renderLivePanel();
-        updateWithdrawSelects();
+        updateSelects();
         saveToLocal();
     }
 
@@ -239,6 +287,39 @@
                     examAccounts = examAccounts.filter(ex => ex.platform !== plat);
                     renderAll();
                     showToast(`已删除平台 ${plat}`);
+                }
+            });
+        });
+    }
+
+    function renderPersonSidebar() {
+        const container = document.getElementById("personListContainer");
+        if(!container) return;
+        if(persons.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px;">暂无交易员<br>点击上方按钮添加</div>';
+            return;
+        }
+        container.innerHTML = persons.map(p => {
+            const displayTotal = getDisplayTotalWithdraw(p.id);
+            const isActive = currentPersonId === p.id;
+            return `
+                <div class="person-item ${isActive ? 'active' : ''}" data-id="${p.id}">
+                    <div>
+                        <div class="person-name-side">${p.name}</div>
+                        <div class="person-stats">💰 累计出金: $${displayTotal.toFixed(0)}</div>
+                    </div>
+                    <div class="person-stats">📊 ${fundedAccounts.filter(f=>f.personId===p.id).length}个账户</div>
+                </div>
+            `;
+        }).join('');
+        
+        document.querySelectorAll('.person-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const id = parseInt(el.dataset.id);
+                if (currentPersonId !== id) {
+                    currentPersonId = id;
+                    renderPersonDetail();
+                    renderPersonSidebar();
                 }
             });
         });
@@ -276,49 +357,59 @@
         `;
     }
 
-    function renderPersons() {
-        const container = document.getElementById("personsContainer");
-        container.innerHTML = "";
-        for(let p of persons) {
-            let personFunded = fundedAccounts.filter(f => f.personId === p.id);
-            const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
-            let groupsHtml = "";
-            for(let plat of platformSet) {
-                const accountsOfPlat = personFunded.filter(f => f.platform === plat);
-                const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
-                const liveAccounts = accountsOfPlat.filter(f => f.isLive);
-                if(normalAccounts.length > 0) {
-                    groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
-                    normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
-                }
-                if(liveAccounts.length > 0) {
-                    groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
-                    liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
-                }
+    function renderPersonDetail() {
+        const container = document.getElementById("personDetailContainer");
+        if(!container) return;
+        
+        if(persons.length === 0 || !currentPersonId) {
+            container.innerHTML = '<div class="person-card"><div class="empty-person">👈 请从左侧选择交易员</div></div>';
+            return;
+        }
+        
+        const p = persons.find(p => p.id === currentPersonId);
+        if(!p) { container.innerHTML = '<div class="person-card"><div class="empty-person">交易员不存在</div></div>'; return; }
+        
+        let personFunded = fundedAccounts.filter(f => f.personId === p.id);
+        const platformSet = [...new Set(personFunded.map(f => f.platform))].sort();
+        let groupsHtml = "";
+        for(let plat of platformSet) {
+            const accountsOfPlat = personFunded.filter(f => f.platform === plat);
+            const normalAccounts = accountsOfPlat.filter(f => !f.isLive);
+            const liveAccounts = accountsOfPlat.filter(f => f.isLive);
+            if(normalAccounts.length > 0) {
+                groupsHtml += `<div class="group-title">📁 ${plat} · 资助账户</div>`;
+                normalAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, false); });
             }
-            if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
-            
-            const personExam = examAccounts.filter(e => e.personId === p.id);
-            let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
-            if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
-            else {
-                personExam.forEach(ex => {
-                    examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
-                });
+            if(liveAccounts.length > 0) {
+                groupsHtml += `<div class="group-title">🔥 ${plat} · Live账户</div>`;
+                liveAccounts.forEach(acc => { groupsHtml += getAccountItemHtml(acc, true); });
             }
-            
-            const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
-            const totalWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
-            const totalWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
-            
-            const manualCostKey = `manual_cost_${p.id}`;
-            let manualCost = localStorage.getItem(manualCostKey);
-            if (manualCost === null) manualCost = autoTotalCost;
-            else manualCost = parseFloat(manualCost);
-            
-            const card = document.createElement("div");
-            card.className = "person-card";
-            card.innerHTML = `
+        }
+        if(personFunded.length === 0) groupsHtml = `<div style="padding:12px;text-align:center;">暂无资助账户</div>`;
+        
+        const personExam = examAccounts.filter(e => e.personId === p.id);
+        let examHtml = `<div class="group-title" style="background:#fef3c7;">📖 考试账户 (待激活)</div>`;
+        if(personExam.length === 0) examHtml += `<div style="padding:8px;">无考试账户</div>`;
+        else {
+            personExam.forEach(ex => {
+                examHtml += `<div style="background:#fefce8; border-radius:16px; padding:8px; margin-bottom:8px;"><strong>${ex.platform}</strong> ${ex.alias ? `(${ex.alias})` : ''} <button class="btn-small activate-exam" data-id="${ex.id}" style="float:right;">✨ 激活</button></div>`;
+            });
+        }
+        
+        const autoTotalCost = personFunded.reduce((s,f)=> s + (f.cost||0), 0);
+        const autoWithdrawCount = personFunded.reduce((s,f)=> s + f.withdrawals.length, 0);
+        const autoWithdrawAmount = personFunded.reduce((s,f)=> s + f.withdrawals.reduce((ss,w)=>ss+w.amount,0), 0);
+        
+        const manualCostKey = `manual_cost_${p.id}`;
+        let manualCost = localStorage.getItem(manualCostKey);
+        if (manualCost === null) manualCost = autoTotalCost;
+        else manualCost = parseFloat(manualCost);
+        
+        const currentManualWithdraw = getManualTotalWithdraw(p.id);
+        const manualWithdrawValue = (currentManualWithdraw !== null && !isNaN(currentManualWithdraw)) ? currentManualWithdraw : autoWithdrawAmount;
+        
+        container.innerHTML = `
+            <div class="person-card">
                 <div class="person-header">
                     <span class="person-name">👤 ${p.name}</span>
                     <div><button class="btn-small delete-person" data-id="${p.id}">删除人员</button></div>
@@ -327,42 +418,48 @@
                     ${groupsHtml}
                     <hr>
                     ${examHtml}
-                    <div style="margin-top:12px; background:#f1f5f9; border-radius:20px; padding:12px;">
-                        <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                            <div>📌 当前账户成本: <strong style="color:#1e5631;">$${autoTotalCost.toFixed(2)}</strong></div>
-                            <div>💰 实际总成本: 
-                                <input type="number" id="manualCost_${p.id}" class="manual-cost-input" step="any" value="${manualCost.toFixed(2)}">
-                                <button class="btn-small save-manual-cost" data-id="${p.id}">💾 保存</button>
+                    
+                    <!-- 统计区域 -->
+                    <div style="margin-top:16px; background:#f1f5f9; border-radius:20px; padding:16px;">
+                        <div class="stat-row">
+                            <div class="stat-box">
+                                <div class="stat-label">📊 自动出金次数</div>
+                                <div class="stat-number">${autoWithdrawCount}</div>
+                                <div class="stat-label" style="font-size:0.65rem;">基于现存账户</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">💰 自动累计出金</div>
+                                <div class="stat-number">$${autoWithdrawAmount.toFixed(0)}</div>
+                                <div class="stat-label" style="font-size:0.65rem;">基于现存账户</div>
                             </div>
                         </div>
-                        <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 8px;">
-                            📊 总出金次数: ${totalWithdrawCount} | 累计出金: $${totalWithdrawAmount.toFixed(2)}
-                            ${manualCost !== autoTotalCost ? `<span style="margin-left: 16px; color: #f59e0b;">⚠️ 手动成本已覆盖</span>` : ''}
+                        
+                        <div class="stat-row">
+                            <div class="stat-box" style="background:#e6f7ec;">
+                                <div class="stat-label">✏️ 实际总出金 (手动)</div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                                    <input type="number" id="manualWithdraw_${p.id}" class="manual-withdraw-input" step="any" value="${manualWithdrawValue.toFixed(2)}" placeholder="实际总出金">
+                                    <button class="btn-small save-manual-withdraw" data-id="${p.id}">💾 保存</button>
+                                </div>
+                                <div class="stat-label" style="font-size:0.65rem; margin-top:6px;">⭐ 左侧列表将显示此数值</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">📌 自动计算成本</div>
+                                <div class="stat-number">$${autoTotalCost.toFixed(0)}</div>
+                                <div style="margin-top:6px;">
+                                    <input type="number" id="manualCost_${p.id}" class="manual-cost-input" step="any" value="${manualCost.toFixed(2)}" style="width:100px;">
+                                    <button class="btn-small save-manual-cost" data-id="${p.id}">保存</button>
+                                </div>
+                            </div>
                         </div>
+                        ${manualWithdrawValue !== autoWithdrawAmount ? `<div style="margin-top:8px; padding:6px 12px; background:#fef3c7; border-radius:16px; font-size:0.7rem;">⚠️ 手动实际出金 ($${manualWithdrawValue.toFixed(0)}) 已覆盖自动统计 ($${autoWithdrawAmount.toFixed(0)})</div>` : ''}
+                        ${manualCost !== autoTotalCost ? `<div style="margin-top:6px; padding:6px 12px; background:#fef3c7; border-radius:16px; font-size:0.7rem;">⚠️ 手动成本 ($${manualCost.toFixed(0)}) 已覆盖自动计算 ($${autoTotalCost.toFixed(0)})</div>` : ''}
                     </div>
                 </div>
-            `;
-            container.appendChild(card);
-        }
-        bindPersonEvents();
+            </div>
+        `;
         
-        document.querySelectorAll('.save-manual-cost').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const personId = parseInt(btn.dataset.id);
-                const input = document.getElementById(`manualCost_${personId}`);
-                const value = parseFloat(input.value);
-                if (!isNaN(value) && value >= 0) {
-                    localStorage.setItem(`manual_cost_${personId}`, value);
-                    showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的总成本: $${value.toFixed(2)}`);
-                    renderAll();
-                } else {
-                    showToast("❌ 请输入有效的金额");
-                }
-            });
-        });
-    }
-
-    function bindPersonEvents() {
+        // 绑定事件
         document.querySelectorAll('.delete-person').forEach(btn => {
             btn.addEventListener('click', (e) => { 
                 let id = parseInt(btn.dataset.id); 
@@ -370,6 +467,7 @@
                     persons = persons.filter(p=>p.id!==id); 
                     fundedAccounts = fundedAccounts.filter(f=>f.personId!==id); 
                     examAccounts = examAccounts.filter(e=>e.personId!==id); 
+                    if(currentPersonId === id) currentPersonId = persons.length > 0 ? persons[0]?.id : null;
                     renderAll(); 
                     showToast("已删除人员");
                 } 
@@ -399,15 +497,7 @@
                 let examId = parseInt(btn.dataset.id); 
                 const exam = examAccounts.find(e=>e.id===examId); 
                 if(exam && confirm(`激活 ${exam.platform} 考试账户？`)){ 
-                    fundedAccounts.push({ 
-                        id: nextFundedId++, 
-                        personId: exam.personId, 
-                        platform: exam.platform, 
-                        alias: exam.alias, 
-                        cost: 0, 
-                        isLive: false, 
-                        withdrawals: [] 
-                    }); 
+                    fundedAccounts.push({ id: nextFundedId++, personId: exam.personId, platform: exam.platform, alias: exam.alias, cost: 0, isLive: false, withdrawals: [] }); 
                     examAccounts = examAccounts.filter(e=>e.id!==examId); 
                     renderAll(); 
                     showToast("已激活为资助账户"); 
@@ -415,7 +505,6 @@
             });
         });
         
-        // 删除单条出金记录
         document.querySelectorAll('.delete-withdraw-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -431,6 +520,34 @@
                         showToast(`✅ 已删除出金记录 $${amount}`);
                     }
                 }
+            });
+        });
+        
+        document.querySelectorAll('.save-manual-cost').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const personId = parseInt(btn.dataset.id);
+                const input = document.getElementById(`manualCost_${personId}`);
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    localStorage.setItem(`manual_cost_${personId}`, value);
+                    showToast(`✅ 已保存成本`);
+                    renderPersonDetail();
+                    renderPersonSidebar();
+                } else { showToast("❌ 请输入有效金额"); }
+            });
+        });
+        
+        document.querySelectorAll('.save-manual-withdraw').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const personId = parseInt(btn.dataset.id);
+                const input = document.getElementById(`manualWithdraw_${personId}`);
+                const value = parseFloat(input.value);
+                if (!isNaN(value) && value >= 0) {
+                    setManualTotalWithdraw(personId, value);
+                    showToast(`✅ 已保存 ${persons.find(p=>p.id===personId)?.name} 的实际总出金: $${value.toFixed(2)}`);
+                    renderPersonSidebar();
+                    renderPersonDetail();
+                } else { showToast("❌ 请输入有效金额"); }
             });
         });
     }
@@ -488,12 +605,21 @@
         document.getElementById("liveStatsPanel").innerHTML = html;
     }
 
-    function updateWithdrawSelects() {
-        const personSelect = document.getElementById("withdrawPersonSelect");
-        if(!personSelect) return;
-        personSelect.innerHTML = persons.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        if(persons.length > 0) updateAccountSelectByPerson(persons[0].id);
-        personSelect.onchange = () => { const pid = parseInt(personSelect.value); updateAccountSelectByPerson(pid); };
+    function updateSelects() {
+        const personOptions = persons.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        const platformOptions = platforms.map(p => `<option value="${p}">${p}</option>`).join('');
+        const selects = ["fundedPersonSelect", "examPersonSelect", "withdrawPersonSelect"];
+        selects.forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = personOptions; });
+        const platformSelects = ["fundedPlatformSelect", "examPlatformSelect"];
+        platformSelects.forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = platformOptions; });
+        
+        const withdrawSelect = document.getElementById("withdrawAccountSelect");
+        if(withdrawSelect && persons.length > 0) {
+            const firstPersonId = persons[0].id;
+            const accountsOfPerson = fundedAccounts.filter(acc => acc.personId === firstPersonId);
+            withdrawSelect.innerHTML = accountsOfPerson.map(acc => `<option value="${acc.id}">${acc.platform} ${acc.alias ? `(${acc.alias})` : ''}</option>`).join('');
+            if(withdrawSelect.innerHTML === '') withdrawSelect.innerHTML = '<option disabled>暂无账户</option>';
+        }
     }
 
     function updateAccountSelectByPerson(personId) {
@@ -508,7 +634,7 @@
 
     function openWithdrawByAccountId(accId) {
         const modal = document.getElementById("modalWithdraw");
-        updateWithdrawSelects();
+        updateSelects();
         const account = fundedAccounts.find(a => a.id === accId);
         if(account) {
             const personSelect = document.getElementById("withdrawPersonSelect");
@@ -521,7 +647,6 @@
         modal.classList.add("active");
     }
 
-    // ==================== 事件绑定 ====================
     function initEventListeners() {
         document.getElementById("addPlatformBtn").onclick = () => { document.getElementById("modalPlatform").classList.add("active"); };
         document.getElementById("closePlatform").onclick = () => document.getElementById("modalPlatform").classList.remove("active");
@@ -529,60 +654,25 @@
         
         document.getElementById("addPersonBtn").onclick = () => { document.getElementById("modalPerson").classList.add("active"); };
         document.getElementById("closePerson").onclick = () => document.getElementById("modalPerson").classList.remove("active");
-        document.getElementById("confirmPerson").onclick = () => { let name = document.getElementById("personName").value.trim(); if(name){ persons.push({ id: nextPersonId++, name }); renderAll(); document.getElementById("modalPerson").classList.remove("active"); showToast(`添加人员 ${name}`); } };
+        document.getElementById("confirmPerson").onclick = () => { let name = document.getElementById("personName").value.trim(); if(name){ const newId = nextPersonId++; persons.push({ id: newId, name }); if(!currentPersonId) currentPersonId = newId; renderAll(); document.getElementById("modalPerson").classList.remove("active"); showToast(`添加人员 ${name}`); } };
         
-        document.getElementById("addFundedAccountBtn").onclick = () => { 
-            document.getElementById("fundedPersonSelect").innerHTML = persons.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-            document.getElementById("fundedPlatformSelect").innerHTML = platforms.map(p => `<option value="${p}">${p}</option>`).join('');
-            document.getElementById("modalFunded").classList.add("active"); 
-        };
+        document.getElementById("addFundedAccountBtn").onclick = () => { updateSelects(); document.getElementById("modalFunded").classList.add("active"); };
         document.getElementById("closeFunded").onclick = () => document.getElementById("modalFunded").classList.remove("active");
-        document.getElementById("confirmFunded").onclick = () => { 
-            const personId=parseInt(document.getElementById("fundedPersonSelect").value); 
-            const platform=document.getElementById("fundedPlatformSelect").value; 
-            const alias=document.getElementById("fundedAlias").value; 
-            const cost=parseFloat(document.getElementById("fundedCost").value)||0; 
-            const isLive=document.getElementById("fundedLive").checked; 
-            fundedAccounts.push({ id: nextFundedId++, personId, platform, alias, cost, isLive, withdrawals:[] }); 
-            renderAll(); 
-            document.getElementById("modalFunded").classList.remove("active"); 
-            showToast("添加资助账户"); 
-        };
+        document.getElementById("confirmFunded").onclick = () => { const personId=parseInt(document.getElementById("fundedPersonSelect").value); const platform=document.getElementById("fundedPlatformSelect").value; const alias=document.getElementById("fundedAlias").value; const cost=parseFloat(document.getElementById("fundedCost").value)||0; const isLive=document.getElementById("fundedLive").checked; fundedAccounts.push({ id: nextFundedId++, personId, platform, alias, cost, isLive, withdrawals:[] }); renderAll(); document.getElementById("modalFunded").classList.remove("active"); showToast("添加资助账户"); };
         
-        document.getElementById("addExamAccountBtn").onclick = () => { 
-            document.getElementById("examPersonSelect").innerHTML = persons.map(p => `<option value="${p.id}">${p.name}</option>`).join(''); 
-            document.getElementById("examPlatformSelect").innerHTML = platforms.map(p => `<option value="${p}">${p}</option>`).join(''); 
-            document.getElementById("modalExam").classList.add("active"); 
-        };
+        document.getElementById("addExamAccountBtn").onclick = () => { updateSelects(); document.getElementById("modalExam").classList.add("active"); };
         document.getElementById("closeExam").onclick = () => document.getElementById("modalExam").classList.remove("active");
-        document.getElementById("confirmExam").onclick = () => { 
-            const personId=parseInt(document.getElementById("examPersonSelect").value); 
-            const platform=document.getElementById("examPlatformSelect").value; 
-            const alias=document.getElementById("examAlias").value; 
-            examAccounts.push({ id: nextExamId++, personId, platform, alias }); 
-            renderAll(); 
-            document.getElementById("modalExam").classList.remove("active"); 
-            showToast("添加考试账户"); 
-        };
+        document.getElementById("confirmExam").onclick = () => { const personId=parseInt(document.getElementById("examPersonSelect").value); const platform=document.getElementById("examPlatformSelect").value; const alias=document.getElementById("examAlias").value; examAccounts.push({ id: nextExamId++, personId, platform, alias }); renderAll(); document.getElementById("modalExam").classList.remove("active"); showToast("添加考试账户"); };
         
-        document.getElementById("recordWithdrawBtn").onclick = () => { if(fundedAccounts.length===0){ showToast("请先创建资助账户"); return; } updateWithdrawSelects(); document.getElementById("modalWithdraw").classList.add("active"); document.getElementById("withdrawAmount").value = ""; document.getElementById("withdrawDate").value = new Date().toISOString().slice(0,10); };
+        document.getElementById("recordWithdrawBtn").onclick = () => { if(fundedAccounts.length===0){ showToast("请先创建资助账户"); return; } updateSelects(); document.getElementById("modalWithdraw").classList.add("active"); document.getElementById("withdrawAmount").value = ""; document.getElementById("withdrawDate").value = new Date().toISOString().slice(0,10); const personSelect = document.getElementById("withdrawPersonSelect"); if(personSelect && persons.length > 0) { personSelect.onchange = () => { const pid = parseInt(personSelect.value); updateAccountSelectByPerson(pid); }; updateAccountSelectByPerson(parseInt(personSelect.value)); } };
         document.getElementById("closeWithdraw").onclick = () => document.getElementById("modalWithdraw").classList.remove("active");
-        document.getElementById("confirmWithdraw").onclick = () => { 
-            const accId = parseInt(document.getElementById("withdrawAccountSelect").value); 
-            const amount = parseFloat(document.getElementById("withdrawAmount").value); 
-            const date = document.getElementById("withdrawDate").value; 
-            if(isNaN(amount)||amount<=0){ showToast("金额错误"); return; } 
-            if(!date){ showToast("选择日期"); return; } 
-            const acc = fundedAccounts.find(a=>a.id===accId); 
-            if(acc){ acc.withdrawals.push({ amount, date }); renderAll(); document.getElementById("modalWithdraw").classList.remove("active"); showToast(`出金 $${amount} 记录成功`); } 
-        };
+        document.getElementById("confirmWithdraw").onclick = () => { const accId = parseInt(document.getElementById("withdrawAccountSelect").value); const amount = parseFloat(document.getElementById("withdrawAmount").value); const date = document.getElementById("withdrawDate").value; if(isNaN(amount)||amount<=0){ showToast("金额错误"); return; } if(!date){ showToast("选择日期"); return; } const acc = fundedAccounts.find(a=>a.id===accId); if(acc){ acc.withdrawals.push({ amount, date }); renderAll(); document.getElementById("modalWithdraw").classList.remove("active"); showToast(`出金 $${amount} 记录成功`); } };
         
         document.getElementById("syncToCloudBtn").onclick = syncToCloud;
         document.getElementById("loadFromCloudBtn").onclick = loadFromCloud;
         document.getElementById("resetDemoBtn").onclick = () => { if(confirm("重置所有数据")){ loadDemoData(); renderAll(); } };
     }
 
-    // ==================== 启动 ====================
     loadFromLocal();
     initEventListeners();
     renderAll();
